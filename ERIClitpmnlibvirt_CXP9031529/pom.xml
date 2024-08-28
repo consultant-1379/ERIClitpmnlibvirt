@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.ericsson.nms.litp</groupId>
+    <artifactId>ERIClitpmnlibvirt_CXP9031529</artifactId>
+    <packaging>rpm</packaging>
+    <name>[${project.parent.artifactId}] RPM module</name>
+    <description>LITP libvirt adaptor</description>
+
+    <parent>
+        <groupId>com.ericsson.nms.litp</groupId>
+        <artifactId>ERIClitpmnlibvirt</artifactId>
+        <version>2.2.2-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <!-- publishes the rpm module to the ci portal -->
+        <com.ericsson.nms.litp.runats.skip>true</com.ericsson.nms.litp.runats.skip>
+        <publish_artifact>true</publish_artifact>
+        <bom_version>RELEASE</bom_version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <inherited>true</inherited>
+                <configuration>
+                    <requires>
+                        <require>python &gt;= 2.6</require>
+                        <require>genisoimage &gt;= 1.1</require>
+                        <require>PyYAML &gt;= 3.10</require>
+                    </requires>
+                    <mappings combine.children="append">
+                        <mapping>
+                            <directory>/etc</directory>
+                            <directoryIncluded>false</directoryIncluded>
+                            <configuration>true</configuration>
+                            <sources>
+                                <source>
+                                    <location>../etc</location>
+                                    <includes>
+                                        <include>litp_libvirt_logging.conf</include>
+                                    </includes>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>${app.home}/lib/litpmnlibvirt</directory>
+                            <filemode>755</filemode>
+                            <sources>
+                                <source>
+                                    <location>../src/litpmnlibvirt</location>
+                                    <includes>
+                                        <include>litp_libvirt_adaptor.py</include>
+                                    </includes>
+                                </source>
+                            </sources>
+                        </mapping>
+                    </mappings>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+  <profiles>
+    <profile>
+      <id>current-dep</id>
+      <activation>
+        <property>
+          <name>!UsingLatest</name>
+        </property>
+      </activation>
+    </profile>
+    <profile>
+      <id>latest-dep</id>
+      <properties>
+        <UsingLatest>true</UsingLatest>
+      </properties>
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>com.ericsson.litp</groupId>
+            <artifactId>ci-bom</artifactId>
+            <version>${bom_version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+    </profile>
+  </profiles>
+    <dependencies>
+    </dependencies>
+</project>
